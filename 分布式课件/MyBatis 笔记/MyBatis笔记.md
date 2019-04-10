@@ -592,7 +592,7 @@ public interface EmployeeMapperAnnotation {
 
 
 
-## 5、mybatis-crud
+# 三、mybatis-crud
 
   ### 1、创建项目配置环境
 
@@ -854,7 +854,7 @@ public class MyBatisTest {
    ```
 
    
-## 6、mybatis的参数处理
+# 四、mybatis的参数处理
 
    ```properties
 单个参数：mybatis不会做任何处理
@@ -1157,7 +1157,9 @@ public class MyBatisTest {
 
 
 
-   ### 3、延迟加载（懒加载）
+   #### 3、resultMap延迟加载（懒加载）
+
+####1、使用association分段查询和延迟加载
 
 只需要在分段查询的基础上，加上两个配置，只有在需要的查询
 
@@ -1166,6 +1168,448 @@ public class MyBatisTest {
 			<!-- 侵入懒加载，只有在需要的再查询默认为false -->
 			<setting name="aggressiveLazyLoading" value="false"/>
 
+#### 2、使用connection标签，分段查询，懒加载
+
+查询部门信息的时候，也把相对应的员工的信息查询出来。
+
+效果与association一样，一样的运用。
+
+- 通过select,选择分段查询的的sql语句，**注意要全类名**，
+- column,将上个语句的参数，传给resultMap,继续查询。
+- 如果传递多列的值。使用column={key1=column1,key2=colum2}
+
+#### 3、discriminator鉴别器
+
+>mybatis可以使用discriminator鉴别器判断某列的值，然后根据某列的值改变封装行为封装Employee.
+
+```xml
+<!-- <discriminator javaType=""></discriminator> 鉴别器：mybatis可以使用discriminator鉴别器判断某列的值，然后根据某列的值改变封装行为封装Employee 
+  例子： 如果查出的是女生（gender），就把部门信息查询出来,否则不查询;如果查出的是男生，就把lastNamt这一列的值赋值给email -->
+<resultMap type="com.ln.mybaits.bean.Employee" id="MyDifEmp4">
+    <id column="id" property="id"></id>
+    <result column="last_name" property="lastName" />
+    <!--association定义关联对象的封装规则 select:表名当前属性是调用select指定的方法查出的结果 column:指定将哪一列的值传给这个方法（因为先执行了employy的查询语句，有结果） 
+   流程：使用select指定的方法（传入cloumn指定的这列参数的值）查出对象，并封装给property指定的属性 -->
+    <!-- column：指定要判断的列名 javaType：列值对应的java类型 -->
+    <discriminator javaType="String" column="gender">
+        <!-- 女生 -->
+        <case value="0" resultType="com.ln.mybaits.bean.Employee">
+            <!-- association查询select的sql语句的是部门信息 -->
+            <association property="dept" select="xxxdao.Mapper.getById"
+                         column="d_id">
+            </association>
+        </case>
+        <!-- 男生 如果查出的是男生，就把lastNamt这一列的值赋值给email -->
+        <case value="1" resultType="com.ln.mybaits.bean.Employee">
+            <id column="id" property="id"></id>
+            <result column="last_name" property="lastName" />
+            <result column="last_name" property="email" />
+
+        </case>
+    </discriminator>
+</resultMap>
+
+<select id="查询的emp" resultMap="MyDifEmp4">
+    <!-- 查询员工表 -->
+</select>
+```
 
 
+
+# 五、mybatis动态sql处理
+
+><!--
+>	if|
+>	choose(when,otherwise)|
+>	trim(where,set)|
+>	foreach
+>	  -->
+>
+>
+
+###1、if标签
+
+```xml
+	<!-- test:判断表达式 (OGNL) c:if test一样 从参数中取值进行判断 遇见特殊符号应该去写转义字符 ''=====&quot;&quot; 
+				trim():截取 -->
+			<if test="id!=null">
+				id=#{id} and
+			</if>
+```
+
+### 2、where、trim标签（封装查询条件）
+
+```properties
+/* 如果某个条件没带，sql拼装可能出问题
+* 1、sql的where后面加上 1=1 以后的条件都会and xxxx
+* 2、使用where标签拼装sql条件语句,它会将多出来的and或or去掉
+*    where只会去掉第一个多出来的and或or去掉
+* 3、
+* */
+```
+
+
+
+#### 1、if语句中的and|or放在前面用where
+
+>它会将判断条件自动拼装组合，(and 、or)
+
+```xml
+<where>
+    <!-- test:判断表达式 (OGNL) c:if test一样 从参数中取值进行判断 遇见特殊符号应该去写转义字符 ''=====&quot;&quot; 
+    trim():截取 -->
+    <if test="id!=null">
+        id=#{id} and
+    </if>
+    <if test="lastName!=null and lastName!=&quot;&quot;">
+        and last_name like #{lastName}
+    </if>
+    <!-- -->
+    <if test="email!=null and email.trim()!=&quot;&quot;">
+        and email=#{email} 
+    </if>
+    <!-- ognl会进行字符串与数字的转换判断 -->
+    <if test="gender==0 or gender==1">
+        and gender=#{gender}
+    </if>
+</where>
+```
+
+#### 2、if语句中的and|or放在后面用trim
+
+>**后面多出来的and或者or，where标签并不能解决**
+>		prefix="":前缀：trim标签体是整个字符串拼装后的结果；
+>		            prefix给整个拼串后的结果加前缀
+>		prefixOverrides="":
+>		              前缀覆盖：去掉整个字符串前面多余的字符字符
+>		suffix="":后缀
+>		            suffix给整个拼串后的结果加后缀
+>		suffixOverrides="" 
+>		             后缀覆盖：去掉整个字符串后面多余的字符字符
+
+```xml
+<!-- public List<Employee> getEmpsByConditionTrim(Employee employee) ; -->
+<select id="getEmpsByConditionTrim" resultType="com.ln.mybaits.bean.Employee">
+    select * from tbl_employee
+    <!-- 后面多出来的and或者or，where标签并不能解决
+  prefix="":前缀：trim标签体是整个字符串拼装后的结果；
+              prefix给整个拼串后的结果加前缀
+  prefixOverrides="":
+                前缀覆盖：去掉整个字符串前面多余的字符字符
+  suffix="":后缀
+              suffix给整个拼串后的结果加后缀
+  suffixOverrides="" 
+               后缀覆盖：去掉整个字符串后面多余的字符字符
+  -->
+    <trim prefix="where" prefixOverrides="" suffix="" suffixOverrides="and">		
+        <if test="id!=null">
+            id=#{id} and
+        </if>
+        <if test="lastName!=null and lastName!=&quot;&quot;">
+            last_name like #{lastName} and
+        </if>
+        <!-- -->
+        <if test="email!=null and email.trim()!=&quot;&quot;">
+            email=#{email} and
+        </if>
+        <!-- ognl会进行字符串与数字的转换判断 -->
+        <if test="gender==0 or gender==1">
+            gender=#{gender}
+        </if>
+    </trim>
+</select>
+```
+
+
+
+### 3、choose (when,otherwise)分支选择
+
+```xml
+<!-- public List<Employee> getEmpsByConditionChoose(Employee employee) ; -->
+<select id="getEmpsByConditionChoose" resultType="com.ln.mybaits.bean.Employee">
+    select * from tbl_employee
+    <!-- choose(when,otherwise)如果携带了id，就用id查询，如果携带了lastName，用lastName查询 -->
+    <where>
+        <choose>
+            <when test="id!=null">
+                id=#{id}
+            </when>
+            <when test="lastName!=null and lastName!=&quot;&quot;">
+                last_name like #{lastName}
+            </when>
+            <!-- -->
+            <when test="email!=null and email.trim()!=&quot;&quot;">
+                email=#{email}
+            </when>
+            <otherwise>
+                gender=0
+            </otherwise>
+        </choose>
+    </where>
+</select>
+```
+
+
+
+### 4、set（封装修改条件）
+
+```xml
+<!-- public void updateEmp(Employee employee) ; -->
+<update id="updateEmp">
+    <!--
+   1、使用set、if方案
+   2、使用trim、if方案。能解决，问题 
+  -->
+    <!-- 	
+ update tbl_employee
+  <set>
+   <if test="last!=null">
+    last_name=#{lastName},
+   </if>
+   <if test="email!=null">
+    email=#{email},
+   </if>
+   <if test="gender!=null">
+    gender=#{gender}
+   </if>
+  </set>
+  where id=#{id} 
+  -->
+
+
+    update tbl_employee
+    <trim prefix="set" suffixOverrides=",">
+        <if test="lastName!=null">
+            last_name=#{lastName},
+        </if>
+        <if test="email!=null">
+            email=#{email},
+        </if>
+        <if test="gender!=null">
+            gender=#{gender}
+        </if>
+    </trim>
+    where id=#{id} 
+
+</update>
+```
+
+
+
+### 5、foreach批量CRUD
+
+#### 1、批量查询
+
+java接口，通过**==@Param("ids")==**，设置固定的参数名称
+
+```java
+public List<Employee> getEmpsByConditionForeach(@Param("ids") List<Integer> ids) ;
+```
+
+xml配置文件
+
+```xml
+<!-- public List<Employee> getEmpsByConditionForeach(List<Integer> ids) ; -->
+<select id="getEmpsByConditionForeach" resultType="com.ln.mybaits.bean.Employee">
+    select * from tbl_employee where id in 
+    <!--
+    collection:指定要遍历的集合
+       list类型的参数会做特殊处理封装在map中，map的key就叫list
+       item:将遍历出的元素赋值给指定的变量
+       #{变量名}就能取出变量的值也就是当前遍历的元素
+       separator:每个元素之间的分隔符
+       open:遍历所有结果拼接一个开始的字符
+       close:遍历所有结果拼接一个结束的字符
+       index:索引。遍历list的时候index是索引, 遍历map的时候index是map的key,item就是map的值
+
+   -->
+    <foreach collection="ids" item="item_id" separator=","
+             open="(" close=")">
+        #{item_id}
+    </foreach>
+
+</select>
+
+```
+
+#### 2、批量保存、修改
+
+接口
+
+```java
+public void addEmp(@Param("emps") List<Employee> employee) ;
+```
+
+
+
+xml配置：有两种方案:**==mysql下批量保存：可以用foreach遍历，因为mysql可以支持values(),(),(),() 语法==**
+
+- values(),(),(),() 支持mysql，不支持oracle
+- 如果oracle想用，用第二种方案
+
+```xml
+<！--使用foreach,values批量支持多个-->
+    <!-- public void addEmp(@Param("emps") List<Employee> employee) ; -->
+    <insert id="addEmp">
+        insert into tbl_employee(last_name,email,gender)
+        values
+        <foreach collection="emps" item="emp" separator=",">
+            (#{emp.lastName},#{emp.email},#{emp.gender})
+        </foreach>
+    </insert>
+<！--使用foreach,sql语句批量，但是要开启mysql支持，在连接url方式上添加allowMultiQueries=true                                                               -->
+    <insert id="addEmp">	
+        <foreach collection="emps" item="emp" separator=";">
+            insert into tbl_employee(last_name,email,gender)
+            values(#{emp.lastName},#{emp.email},#{emp.gender})
+        </foreach>
+    </insert>
+     
+    
+```
+
+test.java
+
+```java
+@Test
+	public void testBatchSave() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession sqlSession = sqlSessionFactory.openSession();
+		try {
+			EmployeeMapperDynamicSQL employeeMapper = sqlSession.getMapper(EmployeeMapperDynamicSQL.class);
+			// 批量添加数据
+			List<Employee> list=new ArrayList<Employee>();
+			Employee employee=null;
+			for (int i = 0; i < 3; i++) {
+				employee=new Employee(null,"smith"+i,"smith"+i+"@ln.com","1");
+				list.add(employee);
+			}
+			employeeMapper.addEmp(list);
+		     
+			sqlSession.commit();
+		} finally {
+			// TODO: handle finally clause
+			sqlSession.close();
+		}
+	}
+```
+
+
+
+##### 1、oracle批量方式
+
+多个insert语句放在begin、end；中
+
+```java
+
+<!-- oracle批量保存 使用begin、end;-->
+	<insert id="addEmp" databaseId="oracle">	
+		<foreach collection="emps" item="emp" separator=";" open="begin" close="end;">
+		insert into tbl_employee(last_name,email,gender)
+		values(#{emp.lastName},#{emp.email},#{emp.gender})
+		</foreach>
+	</insert>
+```
+
+使用中间表的方式
+
+
+
+
+
+
+
+### 6、内置参数
+
+>两个内置参数
+>	  不只是方法传递过来的参数可以被用来判断、取值
+>	  mybatis默认还有两个内置参数
+>	  _parameter:代表整个参数
+>	          单个参数：_parameter:就是这个参数
+>	          多个参数：参数会被封装为一个map； _parameter就是这个map;   
+>	  _databaseId：如果配置了DatabaseIdProvider标签，
+>	     _databaseId代表当前数据库的别名oracle
+
+前提是配置了这个
+
+```xml
+	<!-- 给数据库厂商起别名 -->
+	<databaseIdProvider type="DB_VENDOR">
+	 <property name="MYSQL" value="mysql"/>
+	 <property name="Oracle" value="orace"/>
+	 <property name="SQL Server" value="sqlserver"/>
+	</databaseIdProvider>
+```
+
+接着配置
+
+```xml
+<select id="getEmpsByConditionForeach" resultType="com.ln.mybaits.bean.Employee">
+    <if test="_databaseId=='mysql'">
+        select * from tbl_employee
+        <if test="_parameter!=null">
+            where last_name = #{_parameter.lastName}
+        </if>
+    </if>
+    <if test="_databaseId=='oracle'">
+        select * from employees
+        <if test="_parameter!=null">
+            where last_name = #{_parameter.lastName}
+        </if>
+    </if>
+
+</select>
+```
+
+**bind:可以将OGNL表达式的值绑定到一个变量中，方便后来引用**
+
+```xml
+<select id="getEmpsByConditionForeach" resultType="com.ln.mybaits.bean.Employee">
+    <!--bind:可以将OGNL表达式的值绑定到一个变量中，方便后来引用  -->
+    <bind name="_lastName" value="'%'+lastName+'%'"/>
+    <if test="_databaseId=='mysql'">
+        select * from tbl_employee
+        <if test="_parameter!=null">
+            where last_name like #{_lastName}
+        </if>
+    </if>
+    <if test="_databaseId=='oracle'">
+        select * from employees
+        <if test="_parameter!=null">
+            where last_name like #{lastName}
+        </if>
+    </if>
+
+</select>
+```
+
+
+
+### 7、sql抽取可重用的语句
+
+>- sql抽取
+>
+>- include引用
+>
+>   refid:引用的唯一标识
+>
+>  property：定义属性，通过${属性名}取值
+
+```xml
+<!-- 抽取可重用的sql片段。方便后面引用  -->
+<sql id="insertColumn">
+
+    last_name,email,gender
+</sql>
+<!-- include引用
+  refid：声明的唯一标识
+   -->
+<include refid="insertColumn"></include>
+```
+
+
+
+
+
+# 六、MyBatis的缓存机制
 
