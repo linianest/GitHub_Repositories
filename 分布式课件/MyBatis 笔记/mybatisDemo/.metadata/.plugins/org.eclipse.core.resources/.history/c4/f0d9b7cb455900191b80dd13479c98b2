@@ -1,0 +1,5 @@
+package EmployeeMapper;
+
+public class EmployeeMapperAnnotation {
+
+}

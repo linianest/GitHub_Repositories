@@ -1,0 +1,18 @@
+package com.ln.mybaits.bean;
+
+/**
+ * 员工状态的枚举类型
+ * @author LiNian
+ *
+ */
+public enum EmpStatus {
+
+	LOGIN(100,"用户登录"),LOGOUT(200,"用户登出"),REMOVE(300,"用户不存在");
+	
+	private Integer code;
+	private String msg;
+	public EmpStatus(Integer code,String msg){
+		this.code=code;
+		this.msg=msg;
+	}
+}

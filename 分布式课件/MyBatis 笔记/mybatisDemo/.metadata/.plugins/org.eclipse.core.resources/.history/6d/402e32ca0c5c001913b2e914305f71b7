@@ -1,0 +1,11 @@
+package com.ln.mybaits.bean;
+
+import java.util.List;
+
+public class Page {
+
+	private int start;
+	private int end;
+	private int count;
+	private List<Employee> emps;
+}

@@ -1,0 +1,166 @@
+package com.ln.mybaits.test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.UUID;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.ln.mybaits.bean.EmpStatus;
+import com.ln.mybaits.bean.Employee;
+import com.ln.mybaits.bean.OraclePage;
+import com.ln.mybaits.dao.EmployeeMapper;
+
+public class MyBatisTest {
+
+	public SqlSessionFactory getSqlSessionFactory() throws IOException {
+		String resource = "mybatis-config.xml";
+		InputStream inputStream = Resources.getResourceAsStream(resource);
+		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+		return sqlSessionFactory;
+	}
+
+	@Test
+	public void test() throws IOException {
+		SqlSession openSession = getSqlSessionFactory().openSession();
+		try {
+			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
+			// 1、只需要在查询以前调用一下分页插件
+			Page<Object> page = PageHelper.startPage(3, 2);
+			List<Employee> list = mapper.getEmps();
+			// 2、封装分页信息，连续显示几页
+			PageInfo<Employee> info = new PageInfo<>(list, 3);
+			for (Employee employee : list) {
+				System.out.println(employee);
+			}
+			// System.out.println("当前页码"+page.getPageNum());
+			// System.out.println("总记录数"+page.getTotal());
+			// System.out.println("每页的录数"+page.getPageSize());
+			// System.out.println("总页码"+page.getPages());
+
+			System.out.println("当前页码:" + info.getPageNum());
+			System.out.println("总记录数:" + info.getTotal());
+			System.out.println("每页的录数:" + info.getPageSize());
+			System.out.println("总页码:" + info.getPages());
+			System.out.println("是否第一页:" + info.isIsFirstPage());
+
+			int[] nums = info.getNavigatepageNums();
+			for (int i = 0; i < nums.length; i++) {
+				System.out.println(nums[i]);
+			}
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		} finally {
+			openSession.close();
+		}
+
+	}
+
+	/**
+	 * 批量处理
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void testBatch() throws IOException {
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		// 通过sqlSessionFactory.openSession(ExecutorType.BATCH);获取一个可以批量操作的sqlSession
+		SqlSession openSession = sqlSessionFactory.openSession();
+		long start = System.currentTimeMillis();
+		try {
+			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
+
+			for (int i = 0; i < 10000; i++) {
+				mapper.addEmp(new Employee(UUID.randomUUID().toString().substring(0, 5), "b", "c"));
+			}
+
+			openSession.commit();
+			long end = System.currentTimeMillis();
+			// 批量：(预编译sql一次==》设置参数==》10000次==》执行一次)Parameters: 3f18a(String),
+			// b(String), c(String)==>执行时长：8116
+			// 非批量：(（预编译sql==》设置参数==》执行）==》10000)执行时长(毫秒)：20678;
+			System.out.println("执行时长(毫秒)：" + (end - start));
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		} finally {
+			openSession.close();
+		}
+	}
+
+	/**
+	 * oracle分页 ： 借助rownum:行号；子查询； 存储过程保证分页逻辑
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void testProcedure() throws IOException {
+		SqlSession openSession = getSqlSessionFactory().openSession();
+		try {
+			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
+			OraclePage page = new OraclePage();
+			page.setStart(1);
+			page.setEnd(5);
+			mapper.getPageByProcedure(page);
+
+			
+			System.out.println("总记录数：" + page.getCount());
+			System.out.println("总记录数：" + page.getEmps().size());
+			System.out.println("查出的数据：" + page.getEmps());
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		} finally {
+			openSession.close();
+		}
+
+	}
+	
+	/**
+	 * 默认mybatis在处理枚举对象的时候保存枚举的是枚举的名字：EnumTypeHandler
+	 * 改变使用：EnumOrdinalTypeHandler
+	 */
+	@Test
+	public void testEnumUse(){
+		EmpStatus login=EmpStatus.LOGIN;
+		System.out.println("枚举索引："+login.ordinal());
+		System.out.println("枚举名字："+login.name());
+		System.out.println("枚举的状态码："+login.getCode());
+		System.out.println("枚举的提示消息："+login.getMsg());
+	}
+	
+	/**
+	 * 枚举
+	 * @throws IOException
+	 */
+	@Test
+	public void testEnum() throws IOException{
+		SqlSession openSession = getSqlSessionFactory().openSession();
+		try {
+			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
+//			Employee employee=new Employee("test_enum", "enum@ln.com", "1");
+//		    mapper.addEmp(employee);
+//            System.out.println("保存成功:"+employee.getId());
+			Employee employee=mapper.getEmployee(40114);
+			System.out.println(employee);
+		    openSession.commit();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		} finally {
+			openSession.close();
+		}
+	}
+}

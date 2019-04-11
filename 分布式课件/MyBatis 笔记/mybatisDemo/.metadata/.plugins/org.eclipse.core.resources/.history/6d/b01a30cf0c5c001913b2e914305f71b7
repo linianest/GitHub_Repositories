@@ -1,0 +1,16 @@
+package com.ln.mybaits.bean;
+
+import java.util.List;
+
+/**
+ * 封装分页查询数据
+ * @author LiNian
+ *
+ */
+public class Page {
+
+	private int start;
+	private int end;
+	private int count;
+	private List<Employee> emps;
+}

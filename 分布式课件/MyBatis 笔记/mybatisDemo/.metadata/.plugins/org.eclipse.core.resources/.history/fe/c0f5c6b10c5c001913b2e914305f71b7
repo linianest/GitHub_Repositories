@@ -1,0 +1,8 @@
+package com.ln.mybaits.bean;
+
+public class Page {
+
+	private int start;
+	private int end;
+	private int count;
+}

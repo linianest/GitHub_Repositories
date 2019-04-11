@@ -1,0 +1,19 @@
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+ 
+
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{dd/MM/yy hh:mm:ss:sss z}] %5p %c{2}: %m%n" />
+        </layout>
+    </appender>
+ 
+    <logger name="com.spring.mapperinterface" additivity="true">
+        <level value="DEBUG" />
+    </logger>
+ 
+    <root>
+        <level value="INFO"></level>
+	<appender-ref ref="CONSOLE"/>
+    </root>
+
+</log4j:configuration>

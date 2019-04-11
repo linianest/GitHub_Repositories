@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	 
+	<logger name="java.sql.*" level="debug" additivity="true"></logger>
+	       
+	<logger name="java.sql.ResultSet" level="debug" additivity="true"></logger>
+
+</log4j:configuration>

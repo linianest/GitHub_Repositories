@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties resource="dbconfig.properties"></properties>
+	<settings>
+		<!--显示的指定我们需要的每个配置，防止版本更新后修改了配置 -->
+		<setting name="cacheEnabled" value="true" />
+		<!-- 开启懒加载 -->
+		<setting name="lazyLoadingEnabled" value="true" />
+		<!-- 侵入懒加载，只有在需要的再查询 -->
+		<setting name="aggressiveLazyLoading" value="false" />
+		
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="false" />
+		<setting name="autoMappingBehavior" value="PARTIAL" />
+		<setting name="defaultExecutorType" value="SIMPLE" />
+		<setting name="defaultStatementTimeout" value="25" />
+		<setting name="safeRowBoundsEnabled" value="false" />
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="localCacheScope" value="SESSION" />
+		<setting name="jdbcTypeForNull" value="OTHER" />
+		<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
+	</settings>
+	
+
+	<!-- 给数据库厂商起别名 -->
+	<databaseIdProvider type="DB_VENDOR">
+		<property name="MYSQL" value="mysql" />
+		<property name="Oracle" value="orace" />
+		<property name="SQL Server" value="sqlserver" />
+	</databaseIdProvider>
+
+</configuration>

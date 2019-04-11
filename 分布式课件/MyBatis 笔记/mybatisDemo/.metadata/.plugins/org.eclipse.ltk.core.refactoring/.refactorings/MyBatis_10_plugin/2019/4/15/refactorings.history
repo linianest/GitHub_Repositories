@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;MyFirstPlugin.java&apos; to &apos;MyBatis_10_plugin/src/com.ln.mybaits.dao&apos;&#x0D;&#x0A;- Original project: &apos;MyBatis_10_plugin&apos;&#x0D;&#x0A;- Destination element: &apos;MyBatis_10_plugin/src/com.ln.mybaits.dao&apos;&#x0D;&#x0A;- Original element: &apos;com.ln.mybaits.dao.MyFirstPlugin.java&apos;" description="Copy compilation unit" destination="/src&lt;com.ln.mybaits.dao" element1="/src&lt;com.ln.mybaits.dao{MyFirstPlugin.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1554946723177" units="1" version="1.0"/>
+</session>

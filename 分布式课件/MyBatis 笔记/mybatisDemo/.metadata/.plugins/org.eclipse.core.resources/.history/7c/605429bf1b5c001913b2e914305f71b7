@@ -1,0 +1,14 @@
+package com.ln.mybaits.typeHandler;
+
+import org.apache.ibatis.type.TypeHandler;
+
+import com.ln.mybaits.bean.EmpStatus;
+
+/**自定义类型处理器
+ * 1、实现TypeHandler接口。或者继承BaseTypeHandler
+ * @author LiNian
+ *
+ */
+public class MyEnumEmpStatusTypeHandler implements TypeHandler<EmpStatus>{
+
+}

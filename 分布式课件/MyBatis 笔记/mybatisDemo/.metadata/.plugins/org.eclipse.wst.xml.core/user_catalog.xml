@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri name="http://mybatis.org/dtd/mybatis-3-config.dtd" uri="file:///E:/文档/GitHub_Repositories/分布式课件/MyBatis%20笔记/mybatis-3.4.1/mybatis-3.4.1/mybatis-3-config.dtd"/>
+  <public publicId="http://mybatis.org/dtd/mybatis-3-mapper.dtd" uri="file:///E:/文档/GitHub_Repositories/分布式课件/MyBatis%20笔记/mybatis-3.4.1/mybatis-3.4.1/mybatis-3-mapper.dtd"/>
+</catalog>

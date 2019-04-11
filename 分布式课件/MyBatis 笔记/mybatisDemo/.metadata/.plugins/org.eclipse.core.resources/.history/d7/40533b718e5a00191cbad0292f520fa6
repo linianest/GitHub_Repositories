@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties resource="dbconfig.properties"></properties>
+    <!--
+    Content Model : (properties?, settings?, typeAliases?, typeHandlers?, objectFactory?, 
+ objectWrapperFactory?, reflectorFactory?, plugins?, environments?, databaseIdProvider?, 
+ mappers
+      -->
+    <!--
+      environments：环境集合：myBatis可以配置多种环境，default指定使用某种环境，达到快速切换    
+      environment：配置一个具体的环境信息；必须有两个标签；id代表当前环境的唯一标识；
+         transactionManager：事务管理器；
+              type：事务管理器的类型：JDBC(JdbcTransactionFactory)|MANAGED(ManagedTransactionFactory)
+                           自定义事务管理器:实现接口TransactionFactory。type指定为全类名（一般用spring来配置事务管理器）
+         dataSource:数据源；
+              type:UNPOOLED(不使用连接池：UnPooledDataSourceFactory)
+                   |POOLED(PooledDataSourceFactory)默认使用。
+                   |JNDI(JndiDataSourceFactory)
+                          自定义数据源:实现DataSourceFactory接口，type是全类名
+     -->
+
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+	            <property name="driver" value="${jdbc.driver}" />
+				<property name="url" value="${jdbc.url}"/>
+				<property name="username" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<!--
+	     5、  databaseIdProvider:支持多数据库厂商的；
+	       type="DB_VENDOR"  作用是得到数据库厂商的标识（驱动自带的），mybatis根据数据库厂商标识来执行不同的sql
+	       MYSQL、Orace、sqlserver   xxxx
+	-->
+	<databaseIdProvider type="DB_VENDOR">
+	<!-- 为不同的数据库厂商起别名 -->
+	<property name="MySQL" value="mysql"/>
+	<property name="Oracle" value="oracle"/>
+	<property name="SQL Server" value="sqlserver"/>
+	</databaseIdProvider>
+	
+	<!--
+	 将我们写好的sql映射文件（EmployeeMapper.xml）一定要注册到全局的配置文件中 （mybais-config.xml）
+	 
+	 1.重要的使用mapper.xml
+	 2.不重要的使用注解版的。方便快捷
+	 
+	 -->
+	 <!--
+	 6、mappers：将sql映射注册到全局配置中
+	    mapper：注册一个sql映射  
+	              注册配置文件xxxx.xml
+	       resource：引用类路径下的sql映射文件
+	       url：引用网络路径或者磁盘路径下的资源
+	              注册接口的形式
+	       class:注册接口（全类名）
+	          1、有sql映射文件，映射文件名必须和接口同名并且放在与接口同目录下
+	          2、没有sql映射文件，所有的sql都是利用注解写在接口上
+	                  推荐：
+	                            比较重要的和复杂的Dao接口，写sql映射文件，
+	                           不重要的Dao接口为了开发快速可以使用注解版的
+	    package:批量注册 （可以将EmployeeMapp.xml在类路径下conf创建一个与src同名的包）
+	            就不用每个sql配置文件都注册写一遍
+	                   
+	 -->
+	<mappers>
+		<mapper resource="EmployeeMapper.xml" />
+		<mapper class="com.ln.mybaits.dao.EmployeeMapperAnnotation" />
+	</mappers>
+</configuration>

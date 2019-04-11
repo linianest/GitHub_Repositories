@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 1、mybatis可以使用 properties来引入外部的配置文件的内容 
+	      resources:引入类路径下资源 
+	      url:引入网络资源或者磁盘路径下资源 
+	-->
+
+	<properties resource="dbconfig.properties"></properties>
+		<!--
+	   2. settings 包含很多重要的设置项
+	    setting  用来设置每一项
+	       name:设置项名
+	       value:设置项的值
+	 -->
+	<settings>
+	   <setting name="mapUnderscoreToCamelCaseEnables" value="true"/>
+	   <setting name="jdbcTypeNULL" value="NULL"/>
+	</settings>
+	<!--
+	3.typeAliases别名处理器:可以为java类起别名 ，别名不区分大小写
+	    type:要起别名的全类名；默认别名：employee
+	    alias:新别名
+	     <typeAlias type="com.ln.mybaits.bean.Employee" alias="emp"/>
+	     
+	     package:为包路径及子包下的类批量起别名，采用的是默认别名（类名小写）
+	 -->
+	 <typeAliases>
+	   <package name="com.ln.mybaits.bean"/>
+	 </typeAliases>
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${jdbc.driver}" />
+				<property name="url" value="${jdbc.url}"/>
+				<property name="username" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<!-- 将我们写好的sql映射文件（EmployeeMapper.xml）一定要注册到全局的配置文件中 （mybais-config.xml） -->
+	<mappers>
+	<!--
+	   mapper sql映射文件
+	      resource:类路径下的资源
+	      url:网络或者磁盘资源文件  
+	      class:注册接口
+	        1.EmployeeMapper.xml必须和接口在同一包下并且接口的名字必须是EmployeeMapper
+	        2.基于注解
+	-->
+		<mapper resource="EmployeeMapper.xml" />
+	</mappers>
+</configuration>

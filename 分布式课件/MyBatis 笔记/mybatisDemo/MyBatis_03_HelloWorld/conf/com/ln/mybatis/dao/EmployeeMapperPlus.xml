@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ln.mybaits.dao.EmployeeMapperPlus">
+	<!-- 自定义返回类型 -->
+
+	<!-- 自定义某个javaBean的封装规则 type:自定义规则的java类型 id:唯一id方便引用 -->
+	<resultMap type="com.ln.mybaits.bean.Employee" id="mySimpleEmp">
+		<!-- 指定主键列的封装规则 id定义主键会底层优化 column：指定数据表中的那一列 property:对应的哪个javaBean属性 -->
+		<id column="id" property="id"></id>
+		<result column="last_name" property="lastName" />
+		<!-- 其他不指定的列会自动封装，我们只要写resultMap,就会把全部的映射规则都写上 -->
+	</resultMap>
+
+
+
+	<!-- public Employee getEmployee(Integer id); -->
+	<!-- @Alias("emp")给pojo起别名 -->
+	<select id="getEmployee" resultMap="myEmp">
+		select * from tbl_employee
+		where id=#{id}
+	</select>
+
+	<!-- 场景一： 查询employee的同时查询员工对应的部门 Employee==Department 一个员工有与之对应的部门信息 -->
+
+	<!-- 联合查询：级联属性封装结果集 -->
+	<resultMap type="com.ln.mybaits.bean.Employee" id="MyDifEmp">
+		<id column="id" property="id"></id>
+		<result column="last_name" property="lastName" />
+		<result column="did" property="dept.id" />
+		<result column="dept_name" property="dept.department" />
+	</resultMap>
+
+	<select id="" resultMap="MyDifEmp">
+		<!-- 联合查询sql语句 -->
+	</select>
+
+
+	<!-- 联合查询：使用association定义关联单个对象的封装规则 -->
+	<resultMap type="com.ln.mybaits.bean.Employee" id="MyDifEmp2">
+		<id column="id" property="id"></id>
+		<result column="last_name" property="lastName" />
+		<!--association可以指定联合的javabean对象 指定哪个javaBean中的哪个属性是联合的对象 javaType:指定这个属性对象的类型[不可省略] -->
+		<association property="dept" javaType="com.ln.mybaits.bean.Department">
+			<result column="did" property="id" />
+			<result column="dept_name" property="departmentName" />
+		</association>
+	</resultMap>
+
+	<select id="" resultMap="MyDifEmp2">
+		<!-- 联合查询sql语句 -->
+	</select>
+
+
+	<!-- 分布查询，使用association进行分布查询 1、先按照员工id查询员工信息 2、根据员工信息中的部门id查询部门信息 3、部门信息设置到员工信息中 -->
+	<resultMap type="com.ln.mybaits.bean.Employee" id="MyDifEmp3">
+		<id column="id" property="id"></id>
+		<result column="last_name" property="lastName" />
+		<!--association定义关联对象的封装规则 select:表名当前属性是调用select指定的方法查出的结果 column:指定将哪一列的值传给这个方法（因为先执行了employy的查询语句，有结果） 
+			流程：使用select指定的方法（传入cloumn指定的这列参数的值）查出对象，并封装给property指定的属性 -->
+		<association property="dept" select="xxxdao.Mapper.getById"
+			column="d_id">
+		</association>
+
+	</resultMap>
+
+	<select id="" resultMap="MyDifEmp3">
+		<!-- 查询员工表 -->
+	</select>
+
+
+	<!-- 可以使用延时加载： Employee====>Department 我们每次查询Employee对象的时候，都会一起查询出来。 我们想部门信息在我们使用的时候再去查询。 
+		分段查询的基础上，加上两个配置 -->
+
+	<!-- <discriminator javaType=""></discriminator> 鉴别器：mybatis可以使用discriminator鉴别器判断某列的值，然后根据某列的值改变封装行为封装Employee 
+		例子： 如果查出的是女生（gender），就把部门信息查询出来,否则不查询;如果查出的是男生，就把lastNamt这一列的值赋值给email -->
+	<resultMap type="com.ln.mybaits.bean.Employee" id="MyDifEmp4">
+		<id column="id" property="id"></id>
+		<result column="last_name" property="lastName" />
+		<!--association定义关联对象的封装规则 select:表名当前属性是调用select指定的方法查出的结果 column:指定将哪一列的值传给这个方法（因为先执行了employy的查询语句，有结果） 
+			流程：使用select指定的方法（传入cloumn指定的这列参数的值）查出对象，并封装给property指定的属性 -->
+		<!-- column：指定要判断的列名 javaType：列值对应的java类型 -->
+		<discriminator javaType="String" column="gender">
+			<!-- 女生 -->
+			<case value="0" resultType="com.ln.mybaits.bean.Employee">
+				<!-- association查询select的sql语句的是部门信息 -->
+				<association property="dept" select="xxxdao.Mapper.getById"
+					column="d_id">
+				</association>
+			</case>
+			<!-- 男生 如果查出的是男生，就把lastNamt这一列的值赋值给email -->
+			<case value="1" resultType="com.ln.mybaits.bean.Employee">
+				<id column="id" property="id"></id>
+				<result column="last_name" property="lastName" />
+				<result column="last_name" property="email" />
+				
+			</case>
+		</discriminator>
+	</resultMap>
+
+	<select id="getemptest4" resultMap="MyDifEmp3">
+		<!-- 查询员工表 -->
+	</select>
+</mapper>

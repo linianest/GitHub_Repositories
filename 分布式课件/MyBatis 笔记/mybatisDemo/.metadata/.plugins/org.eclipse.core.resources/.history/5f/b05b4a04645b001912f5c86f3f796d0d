@@ -1,0 +1,23 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
+<!-- 磁盘保存路径  -->
+<diskStore path="F:\develop\ehcache" />
+<!--
+ diskStore：指定数据在磁盘中存储的位置
+ defaultCache：默认缓存的配置
+ maxElementsInMemory：内存中缓存的数量
+ maxElementsOnDisk：磁盘中保存的数量
+ eternal
+ -->
+<defaultCache
+maxElementsInMemory="1000"
+maxElementsOnDisk="10000000"
+eternal="false"
+overflowToDisk="false"
+timeToIdleSeconds="120"
+timeToLiveSeconds="120"
+diskExpiryThreadIntervalSeconds="120"
+memoryStoreEvictionPolicy="LRU">
+</defaultCache>
+</ehcache>
+

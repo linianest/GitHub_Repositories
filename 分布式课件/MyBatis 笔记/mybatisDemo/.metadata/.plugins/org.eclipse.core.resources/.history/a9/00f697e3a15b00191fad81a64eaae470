@@ -1,0 +1,52 @@
+package com.ln.mybaits.test;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import com.ln.mybaits.bean.Employee;
+import com.ln.mybaits.dao.EmployeeMapper;
+
+/***
+ *      
+ * 
+ * 
+ * @author LiNian
+ *
+ */
+public class MyBatisTest {
+	
+	public SqlSessionFactory getSqlSessionFactory() throws IOException{
+		String resource = "mybatis-config.xml";
+		InputStream inputStream = Resources.getResourceAsStream(resource);
+		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+		return sqlSessionFactory;
+	}
+	
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void test() throws IOException {
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession=sqlSessionFactory.openSession();
+		try {
+			EmployeeMapper employee=openSession.getMapper(EmployeeMapper.class);
+			System.out.println(employee);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}finally {
+			openSession.close();
+		}
+	
+	}
+
+	
+}

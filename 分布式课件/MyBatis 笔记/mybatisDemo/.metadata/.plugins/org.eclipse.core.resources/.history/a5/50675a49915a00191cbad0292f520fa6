@@ -1,0 +1,36 @@
+log4j:WARN Continuable parsing error 32 and column 23
+log4j:WARN 元素类型为 "log4j:configuration" 的内容必须匹配 "(renderer*,throwableRenderer?,appender*,plugin*,(category|logger)*,root?,(categoryFactory|loggerFactory)?)"。
+log4j:ERROR No appender named [file] could be found.
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+<appender name="console" class="org.apache.log4j.ConsoleAppender">
+<param name="Target" value="System.out" />
+<layout class="org.apache.log4j.PatternLayout">
+<param name="ConversionPattern" value="[CateringLog] %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %c - %m%n" />
+</layout>
+</appender>
+
+<root>
+<priority value="debug" />
+<appender-ref ref="console" />
+<appender-ref ref="file" />
+</root>
+<!--通过<logger></logger>的定义可以将各个包中的类日志输出到不同的日志文件中-->
+<logger name="org.springframework">
+<level value="ERROR" />
+</logger>
+<logger name="org.mybatis.spring">
+<level value="ERROR" />
+</logger>
+<logger name="net.sf.ehcache">
+<level value="ERROR" />
+</logger>
+<logger name="com.mchange.v2">
+<level value="ERROR" />
+</logger>
+<logger name="java.sql">
+<level value="debug" />
+</logger>
+</log4j:configuration>

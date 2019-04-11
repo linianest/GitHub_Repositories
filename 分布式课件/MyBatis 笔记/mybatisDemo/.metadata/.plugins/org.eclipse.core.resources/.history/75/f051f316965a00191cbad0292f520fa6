@@ -1,0 +1,8 @@
+log4j.rootLogger = DEBUG, C 
+## console ###
+log4j.appender.C = org.apache.log4j.ConsoleAppender
+log4j.appender.C.Target = System.out
+# override the  value of rootLogger  
+log4j.appender.C.Threshold =DEBUG 
+log4j.appender.C.layout = org.apache.log4j.PatternLayout
+log4j.appender.C.layout.ConversionPattern = [e-learning][%p] [%-d{yyyy-MM-dd HH:mm:ss}] %C.%M(%L) | %m%n

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss:SSS} %l %m%n" />
+		</layout> <!--限制输出级别从高到低： OFF、FATAL、ERROR、WARN、INFO、DEBUG、TRACE、ALL -->
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="DEBUG" />
+			<param name="LevelMax" value="OFF" />
+			<!-- <param name="AcceptOnMatch" value="true" /> -->
+		</filter>
+	</appender>
+	
+	
+	<!-- 不打印指定的日志，如org.framexxxx -->
+	<logger name="org" additivity="false">
+		<level value="WARN" />
+		<appender-ref ref="ORG-LOCAL" />
+	</logger>
+	<logger name="net" additivity="false">
+		<level value="WARN" />
+		<appender-ref ref="NET-LOCAL" />
+	</logger>
+
+	<root>
+		<!-- <priority value="INFO" /> -->
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ORG-LOCAL" />
+		<appender-ref ref="NET-LOCAL" />
+	</root>
+
+</log4j:configuration>

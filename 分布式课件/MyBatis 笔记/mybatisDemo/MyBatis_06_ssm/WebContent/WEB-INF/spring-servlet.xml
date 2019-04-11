@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+<!-- SpringMVC只是控制网站跳转逻辑 -->
+
+<!-- 自动扫描组件：只扫描控制器；
+use-default-filters: 关闭默认的过滤行为，下面的context:include-filter才会起作用
+-->
+<context:component-scan base-package="com.ln.mybatis" use-default-filters="false">
+<!--只扫描Controller控制器组件-->
+<context:include-filter type="annotation" 
+expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<!-- 视图解析器 -->
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+ <property name="prefix" value="/WEB-INF/pages/"></property>
+ <property name="suffix" value=".jsp"></property>
+</bean>
+
+<!-- 能处理动态资源 -->
+<mvc:annotation-driven></mvc:annotation-driven>
+<!-- 能正确处理静态资源 -->
+<mvc:default-servlet-handler/>
+
+
+
+
+
+</beans>

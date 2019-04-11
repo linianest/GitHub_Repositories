@@ -1,0 +1,11 @@
+package com.ln.mybaits.bean;
+
+/**
+ * 员工状态的枚举类型
+ * @author LiNian
+ *
+ */
+public enum EmpStatus {
+
+	
+}

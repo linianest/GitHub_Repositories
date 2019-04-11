@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+<!--
+MyBatis3Simple:简单版的crud
+MyBatis3:生成的是带有动态sql的
+ -->
+  <context id="DB2Tables" targetRuntime="MyBatis3Simple">
+  <!--jdbcConnection如何连接到目标数据库  -->
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+        connectionURL="jdbc:mysql://localhost:3306/mybatis?allowMultiQueries=true"
+        userId="root"
+        password="root">
+    </jdbcConnection>
+<!-- java类型解析器 -->
+    <javaTypeResolver >
+      <property name="forceBigDecimals" value="false" />
+    </javaTypeResolver>
+<!--javaModelGenerator指定javaBean的生成策略
+targetPackage：目标包名 
+ -->
+    <javaModelGenerator targetPackage="test.model" targetProject="\MBGTestProject\src">
+      <property name="enableSubPackages" value="true" />
+      <property name="trimStrings" value="true" />
+    </javaModelGenerator>
+
+    <sqlMapGenerator targetPackage="test.xml"  targetProject="\MBGTestProject\src">
+      <property name="enableSubPackages" value="true" />
+    </sqlMapGenerator>
+
+    <javaClientGenerator type="XMLMAPPER" targetPackage="test.dao"  targetProject="\MBGTestProject\src">
+      <property name="enableSubPackages" value="true" />
+    </javaClientGenerator>
+
+    <table schema="DB2ADMIN" tableName="ALLTYPES" domainObjectName="Customer" >
+      <property name="useActualColumnNames" value="true"/>
+      <generatedKey column="ID" sqlStatement="DB2" identity="true" />
+      <columnOverride column="DATE_FIELD" property="startDate" />
+      <ignoreColumn column="FRED" />
+      <columnOverride column="LONG_VARCHAR_FIELD" jdbcType="VARCHAR" />
+    </table>
+
+  </context>
+</generatorConfiguration>

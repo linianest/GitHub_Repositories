@@ -1,0 +1,93 @@
+package com.ln.mybaits.test;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import com.ln.mybaits.bean.Employee;
+import com.ln.mybaits.dao.EmployeeMapper;
+
+/***
+ *      
+ * 
+ * 
+ * @author LiNian
+ *
+ */
+public class MyBatisTest {
+	
+	public SqlSessionFactory getSqlSessionFactory() throws IOException{
+		String resource = "mybatis-config.xml";
+		InputStream inputStream = Resources.getResourceAsStream(resource);
+		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+		return sqlSessionFactory;
+	}
+	
+	/**
+	 * 1、获取sqlSessionFactory对象
+	 * 2、获取SqlSession对象
+	 * 3、获取接口实现类对象(MapperProxy)
+	 * 4、执行增删改查
+	 * @throws IOException
+	 */
+	@Test
+	public void test() throws IOException {
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession=sqlSessionFactory.openSession();
+		try {
+			EmployeeMapper employee=openSession.getMapper(EmployeeMapper.class);
+			System.out.println(employee);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}finally {
+			openSession.close();
+		}
+	
+	}
+	
+	/**
+	 * 开发插件：
+	 * 在四大对象创建的时候：
+	 * 1、每个创建出来的对象不是直接返回的，而是 interceptorChain.pluginAll(ParementerHandler);
+	 * 2、
+	 * 
+	 * 
+	 * public Object pluginAll(Object target){
+			for (Interceptor interceptor : interceptors) {
+				 target=interceptor.plugin(target);
+			}
+			return target;
+		}
+	 * @throws IOException
+	 */
+	@Test
+	public void testPlugin() throws IOException {
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession=sqlSessionFactory.openSession();
+		try {
+			EmployeeMapper employee=openSession.getMapper(EmployeeMapper.class);
+			System.out.println(employee);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}finally {
+			openSession.close();
+		}
+		
+		public Object pluginAll(Object target){
+			for (Interceptor interceptor : interceptors) {
+				 target=interceptor.plugin(target);
+			}
+			return target;
+		}
+	}
+
+	
+}
